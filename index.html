@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D0D0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mente Blindada</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D0D0F;
+  --ink-2:#151518;
+  --ink-3:#1D1D22;
+  --paper:#FAFAF8;
+  --muted:#8B8B93;
+  --accent:#C8A96E;
+  --accent-dim:rgba(200,169,110,.14);
+  --green:#7FB88A;
+  --red:#C97B6E;
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--accent);color:var(--ink)}
+html,body{height:100%}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--ink);
+  color:var(--paper);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+.app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:96px}
+.screen{display:none;padding:28px 20px 20px;animation:fade .3s ease-out}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:8px}
+h1{font-family:'Fraunces',serif;font-size:clamp(34px,9vw,44px);line-height:.98;letter-spacing:-.01em;font-weight:700;margin-bottom:10px}
+h2{font-family:'Fraunces',serif;font-size:24px;line-height:1.05;font-weight:600;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14.5px;margin-bottom:26px}
+
+.card{
+  background:var(--ink-2);
+  border:1px solid rgba(250,250,248,.07);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:14px;
+  transition:all .2s ease-out;
+  cursor:pointer;
+}
+.card:active{transform:scale(.985)}
+.card .tag{display:inline-block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);padding:4px 10px;border-radius:99px;margin-bottom:10px;font-weight:500}
+.card h3{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px}
+.card p{font-size:13.5px;color:var(--muted)}
+.card .body{display:none;margin-top:14px;border-top:1px solid rgba(250,250,248,.08);padding-top:14px}
+.card.open .body{display:block}
+.card .body p{color:#C9C9CE;font-size:14px;margin-bottom:12px}
+.card .body strong{color:var(--paper)}
+.card .body em{color:var(--accent);font-style:normal}
+.lesson{background:var(--ink-3);border-radius:10px;padding:13px 14px;margin-bottom:9px}
+.lesson b{display:block;font-size:13.5px;color:var(--accent);margin-bottom:3px}
+.lesson span{font-size:13px;color:#BDBDC4}
+
+.quote{
+  border-left:2px solid var(--accent);
+  padding:6px 0 6px 16px;
+  margin:26px 0;
+}
+.quote p{font-family:'Fraunces',serif;font-size:19px;line-height:1.35;color:var(--paper)}
+.quote span{display:block;margin-top:8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+.stat-row{display:flex;gap:12px;margin-bottom:26px}
+.stat{flex:1;background:var(--ink-2);border:1px solid rgba(250,250,248,.07);border-radius:var(--radius);padding:16px 14px;text-align:center}
+.stat .n{font-family:'Fraunces',serif;font-size:30px;font-weight:700;color:var(--accent);line-height:1}
+.stat .l{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+.btn{
+  display:block;width:100%;
+  background:var(--accent);color:var(--ink);
+  border:none;border-radius:12px;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
+  padding:15px;cursor:pointer;
+  transition:all .2s ease-out;letter-spacing:.01em;
+}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--paper);border:1px solid rgba(250,250,248,.18)}
+.btn:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.opt{
+  display:block;width:100%;text-align:left;
+  background:var(--ink-2);color:var(--paper);
+  border:1px solid rgba(250,250,248,.1);border-radius:12px;
+  font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.5;
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  transition:all .2s ease-out;
+}
+.opt:active{transform:scale(.98)}
+.opt.correct{border-color:var(--green);background:rgba(127,184,138,.1)}
+.opt.wrong{border-color:var(--red);background:rgba(201,123,110,.08)}
+.feedback{
+  display:none;background:var(--ink-3);border-radius:12px;
+  padding:16px;margin-top:6px;font-size:14px;color:#C9C9CE;
+}
+.feedback b{color:var(--accent)}
+.feedback.show{display:block;animation:fade .3s ease-out}
+.scen-situ{
+  background:var(--ink-2);border:1px solid rgba(250,250,248,.07);
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;
+}
+.scen-situ .who{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;font-weight:500}
+.scen-situ p{font-size:15px;line-height:1.55}
+.progress-dots{display:flex;gap:6px;margin-bottom:18px}
+.dot{width:8px;height:8px;border-radius:99px;background:rgba(250,250,248,.15)}
+.dot.done{background:var(--accent)}
+
+textarea{
+  width:100%;background:var(--ink-2);color:var(--paper);
+  border:1px solid rgba(250,250,248,.1);border-radius:12px;
+  font-family:'Space Grotesk',sans-serif;font-size:14px;
+  padding:14px;min-height:90px;resize:vertical;margin-bottom:12px;
+}
+textarea:focus{outline:none;border-color:var(--accent)}
+.diario-q{font-size:14.5px;font-weight:700;margin-bottom:8px;margin-top:18px}
+.saved{display:none;color:var(--green);font-size:13px;margin-top:10px;text-align:center}
+.saved.show{display:block}
+
+.book{display:flex;gap:14px;background:var(--ink-2);border:1px solid rgba(250,250,248,.07);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.book .cover{
+  min-width:44px;height:62px;border-radius:6px;
+  background:linear-gradient(160deg,var(--accent),#8A6F3E);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:700;color:var(--ink);font-size:18px;
+}
+.book h4{font-size:14.5px;font-weight:700;line-height:1.3}
+.book .a{font-size:12px;color:var(--accent);margin-bottom:4px}
+.book p{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(13,13,15,.92);backdrop-filter:blur(20px);
+  border-top:1px solid rgba(250,250,248,.08);
+  display:flex;justify-content:space-around;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  max-width:480px;margin:0 auto;z-index:50;
+}
+nav button{
+  background:none;border:none;color:var(--muted);
+  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.06em;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:4px 10px;transition:color .2s;
+}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.active{color:var(--accent)}
+.hr{height:1px;background:rgba(250,250,248,.08);margin:26px 0}
+.note{font-size:12px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════ INÍCIO ══════════ -->
+<section class="screen active" id="s-home">
+  <div class="kicker">Domínio pessoal · Dia a dia</div>
+  <h1>Mente<br>Blindada</h1>
+  <p class="sub">Ninguém te engana quando conheces os teus pontos cegos. Treino diário de clareza mental, baseado em Cialdini, Sapolsky, Gottman e nos estoicos.</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n" id="st-lessons">0</div><div class="l">Lições lidas</div></div>
+    <div class="stat"><div class="n" id="st-scen">0/6</div><div class="l">Cenários</div></div>
+    <div class="stat"><div class="n" id="st-diario">0</div><div class="l">Diários</div></div>
+  </div>
+
+  <div class="quote" id="daily-quote">
+    <p></p><span></span>
+  </div>
+
+  <button class="btn" onclick="go('treino')">Começar treino de hoje</button>
+  <div style="height:10px"></div>
+  <button class="btn ghost" onclick="go('modulos')">Explorar módulos</button>
+
+  <div class="hr"></div>
+  <h2>A regra de ouro</h2>
+  <p style="font-size:14px;color:#C9C9CE;margin-top:8px">Quem manipula não usa magia. Usa os <strong style="color:var(--paper)">teus</strong> vieses: a tua pressa, a tua carência, o teu medo de perder. A defesa não é desconfiar de todos. É não precisares desesperadamente de nada que alguém te possa oferecer.</p>
+</section>
+
+<!-- ══════════ MÓDULOS ══════════ -->
+<section class="screen" id="s-modulos">
+  <div class="kicker">Estudo</div>
+  <h1>Módulos</h1>
+  <p class="sub">Toca num módulo para abrir. Cada lição é curta, para leres no autocarro ou na fila.</p>
+
+  <div class="card" onclick="toggleCard(this)">
+    <span class="tag">Cialdini</span>
+    <h3>As 6 armas da influência</h3>
+    <p>Como qualquer pessoa, homem ou mulher, te leva a dizer sim sem perceberes.</p>
+    <div class="body">
+      <div class="lesson"><b>1. Reciprocidade</b><span>Quem te dá algo primeiro (um favor, um elogio, um presente) cria em ti uma dívida invisível. Pergunta-te sempre: eu quereria isto se não devesse nada?</span></div>
+      <div class="lesson"><b>2. Compromisso e coerência</b><span>Depois de dizeres um pequeno sim, custa-te recuar. Manipuladores pedem pouco no início e sobem a fasquia. Podes mudar de ideias. Sempre.</span></div>
+      <div class="lesson"><b>3. Prova social</b><span>"Toda a gente faz assim." O cérebro segue a multidão. Quando ouvires isto, é sinal para pensares sozinho.</span></div>
+      <div class="lesson"><b>4. Autoridade</b><span>Títulos, roupa cara, confiança no falar. Nada disso prova competência. Pede factos, não postura.</span></div>
+      <div class="lesson"><b>5. Escassez</b><span>"É só hoje", "há outra pessoa interessada". A urgência desliga o teu raciocínio. Decisão boa aguenta esperar 24 horas.</span></div>
+      <div class="lesson"><b>6. Afinidade</b><span>Gostamos de quem se parece connosco e de quem nos elogia. O elogio certo na hora certa abre a tua guarda. Separa a pessoa da proposta.</span></div>
+    </div>
+  </div>
+
+  <div class="card" onclick="toggleCard(this)">
+    <span class="tag">Vieses cognitivos</span>
+    <h3>Os teus pontos cegos</h3>
+    <p>Baseado em Kahneman e Dobelli. O engano começa dentro da tua cabeça.</p>
+    <div class="body">
+      <div class="lesson"><b>Viés de confirmação</b><span>Só vês o que confirma o que já queres acreditar. Se estás apaixonado, ignoras os sinais de alerta. Procura activamente provas contra a tua própria opinião.</span></div>
+      <div class="lesson"><b>Custo afundado</b><span>"Já investi tanto nesta relação/negócio, não posso sair agora." O que gastaste já não volta. Decide só pelo futuro.</span></div>
+      <div class="lesson"><b>Efeito halo</b><span>Pessoa bonita ou charmosa parece automaticamente honesta e inteligente. O cérebro mistura tudo. Beleza não é carácter.</span></div>
+      <div class="lesson"><b>Aversão à perda</b><span>Doí mais perder do que ganhar. Por isso ficas em situações más com medo de ficar sozinho ou de perder o "investimento".</span></div>
+      <div class="lesson"><b>Viés do optimismo</b><span>"Comigo vai ser diferente." Estatisticamente, não vai. Olha para o padrão de comportamento da pessoa, não para as promessas.</span></div>
+    </div>
+  </div>
+
+  <div class="card" onclick="toggleCard(this)">
+    <span class="tag">Vinculação</span>
+    <h3>Porque escolhes quem te trata mal</h3>
+    <p>Teoria da vinculação (Levine &amp; Heller). O padrão está em quem escolhe.</p>
+    <div class="body">
+      <p><strong>Seguro</strong> — confortável com intimidade e com espaço. É o objectivo.</p>
+      <p><strong>Ansioso</strong> — precisa de validação constante, entra em pânico com silêncio, aceita migalhas. É o perfil mais fácil de manipular, porque o medo de perder fala mais alto que os factos.</p>
+      <p><strong>Evitante</strong> — foge quando a relação aprofunda, confunde independência com frieza.</p>
+      <p><em>A armadilha clássica:</em> ansioso + evitante atraem-se e criam um ciclo de perseguição e fuga que parece "química". Não é química. É ansiedade.</p>
+      <p>Se identificas em ti o padrão ansioso, o trabalho não é decorar tácticas de defesa. É construir uma vida em que ficar sozinho não te assusta. Aí ninguém tem alavanca sobre ti.</p>
+    </div>
+  </div>
+
+  <div class="card" onclick="toggleCard(this)">
+    <span class="tag">Gottman</span>
+    <h3>Os 4 cavaleiros do fim</h3>
+    <p>Sinais que preveem o fim de uma relação com precisão de laboratório.</p>
+    <div class="body">
+      <div class="lesson"><b>1. Crítica</b><span>Atacar o carácter em vez do comportamento: "és sempre assim" em vez de "isto incomodou-me".</span></div>
+      <div class="lesson"><b>2. Desprezo</b><span>Sarcasmo, revirar os olhos, humilhar. É o preditor número um de divórcio. Se existe desprezo, de qualquer lado, a relação está doente.</span></div>
+      <div class="lesson"><b>3. Defensividade</b><span>Nunca assumir nada, devolver sempre a culpa.</span></div>
+      <div class="lesson"><b>4. Bloqueio</b><span>Desligar, ignorar, tratamento de silêncio como castigo.</span></div>
+      <p style="margin-top:12px">Isto serve para avaliares o outro <em>e</em> para te avaliares a ti. Homem forte não é o que nunca falha, é o que reconhece o próprio padrão antes de o repetir.</p>
+    </div>
+  </div>
+
+  <div class="card" onclick="toggleCard(this)">
+    <span class="tag">Estoicismo</span>
+    <h3>Força que não depende de ninguém</h3>
+    <p>Marco Aurélio, Séneca, Epicteto. O núcleo duro do homem sólido.</p>
+    <div class="body">
+      <div class="lesson"><b>Dicotomia do controlo</b><span>Só controlas os teus juízos e as tuas acções. O que o outro faz, sente ou decide não é teu. Larga isso e ficas leve.</span></div>
+      <div class="lesson"><b>Premeditatio malorum</b><span>Imagina de manhã o pior cenário do dia. Quando acontecer, já não te abala. Quem não se abala não é manipulável pelo medo.</span></div>
+      <div class="lesson"><b>Amor fati</b><span>Aceitar o que aconteceu sem drama. Energia gasta em revolta é energia roubada à tua construção.</span></div>
+      <div class="lesson"><b>O teste do desejo</b><span>Quanto mais desejas algo de alguém (aprovação, afecto, sexo, estatuto), mais poder essa pessoa tem sobre ti. Reduz a necessidade, recuperas o poder.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ TREINO ══════════ -->
+<section class="screen" id="s-treino">
+  <div class="kicker">Prática</div>
+  <h1>Cenários reais</h1>
+  <p class="sub">Situações da vida real. Escolhe a tua resposta e vê se detectaste a jogada. Sem teoria: reflexo.</p>
+  <div class="progress-dots" id="scen-dots"></div>
+  <div id="scen-box"></div>
+</section>
+
+<!-- ══════════ DIÁRIO ══════════ -->
+<section class="screen" id="s-diario">
+  <div class="kicker">Ritual nocturno</div>
+  <h1>Diário estoico</h1>
+  <p class="sub">Séneca fazia isto todas as noites. 3 minutos que te tornam mais lúcido do que 90% das pessoas.</p>
+
+  <div class="diario-q">1. Onde é que hoje alguém tentou influenciar-me, e como reagi?</div>
+  <textarea id="d1" placeholder="Escreve aqui..."></textarea>
+
+  <div class="diario-q">2. Que emoção me dominou hoje e o que a activou?</div>
+  <textarea id="d2" placeholder="Escreve aqui..."></textarea>
+
+  <div class="diario-q">3. O que fiz hoje que dependeu só de mim e me deixou orgulhoso?</div>
+  <textarea id="d3" placeholder="Escreve aqui..."></textarea>
+
+  <button class="btn" onclick="saveDiario()">Registar o dia</button>
+  <div class="saved" id="diario-saved">Registado. A clareza constrói-se assim, um dia de cada vez.</div>
+  <p class="note">Os registos ficam guardados apenas neste telemóvel, no armazenamento local do navegador.</p>
+  <div id="diario-hist"></div>
+</section>
+
+<!-- ══════════ BIBLIOTECA ══════════ -->
+<section class="screen" id="s-livros">
+  <div class="kicker">Arsenal</div>
+  <h1>Biblioteca</h1>
+  <p class="sub">Por ordem de leitura recomendada. Um de cada vez, com o diário ao lado.</p>
+
+  <div class="book"><div class="cover">1</div><div><h4>Influence</h4><div class="a">Robert Cialdini</div><p>As 6 armas da persuasão. Depois deste livro, vês as jogadas a acontecer em tempo real, em vendas, política e relações.</p></div></div>
+  <div class="book"><div class="cover">2</div><div><h4>A Arte de Pensar Claramente</h4><div class="a">Rolf Dobelli</div><p>52 erros de raciocínio em capítulos de 3 páginas. Perfeito para ler no telemóvel.</p></div></div>
+  <div class="book"><div class="cover">3</div><div><h4>Attached</h4><div class="a">Levine &amp; Heller</div><p>Explica porque certos homens repetem sempre o mesmo tipo de relação. Espelho desconfortável e necessário.</p></div></div>
+  <div class="book"><div class="cover">4</div><div><h4>Meditações</h4><div class="a">Marco Aurélio</div><p>O diário privado do homem mais poderoso do mundo na altura. O manual da força interior.</p></div></div>
+  <div class="book"><div class="cover">5</div><div><h4>Em Busca de Sentido</h4><div class="a">Viktor Frankl</div><p>Sobreviveu aos campos de concentração e provou que a última liberdade humana é a atitude. Inabalável.</p></div></div>
+  <div class="book"><div class="cover">6</div><div><h4>The Seven Principles for Making Marriage Work</h4><div class="a">John Gottman</div><p>Décadas de casais observados em laboratório. O que constrói e o que destrói uma relação, com dados.</p></div></div>
+  <div class="book"><div class="cover">7</div><div><h4>Behave</h4><div class="a">Robert Sapolsky</div><p>A neurociência completa do comportamento humano. O mais denso da lista, deixa para o fim.</p></div></div>
+</section>
+
+</div>
+
+<nav>
+  <button class="active" data-s="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1z"/></svg>Início</button>
+  <button data-s="modulos" onclick="go('modulos')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5z"/></svg>Módulos</button>
+  <button data-s="treino" onclick="go('treino')"><svg viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/></svg>Treino</button>
+  <button data-s="diario" onclick="go('diario')"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Diário</button>
+  <button data-s="livros" onclick="go('livros')"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Livros</button>
+</nav>
+
+<script>
+// ── Service worker (PWA) ──────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+
+// ── Estado persistente (localStorage) ─────────────────────────
+const DEFAULTS={openedCards:[],scen:0,entries:[],scenIdx:0};
+let state;
+try{state=Object.assign({},DEFAULTS,JSON.parse(localStorage.getItem('mb-state')||'{}'));}
+catch(e){state=Object.assign({},DEFAULTS);}
+state.answered=false;
+function persist(){
+  const{answered,...save}=state;
+  try{localStorage.setItem('mb-state',JSON.stringify(save));}catch(e){}
+}
+function refreshStats(){
+  document.getElementById('st-lessons').textContent=state.openedCards.length;
+  document.getElementById('st-scen').textContent=Math.min(state.scen,6)+"/6";
+  document.getElementById('st-diario').textContent=state.entries.length;
+}
+
+// ── Navegação ─────────────────────────────────────────────────
+function go(s){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+  document.getElementById('s-'+s).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+  window.scrollTo({top:0});
+}
+
+// ── Módulos ───────────────────────────────────────────────────
+function toggleCard(c){
+  c.classList.toggle('open');
+  const id=c.querySelector('h3').textContent;
+  if(!state.openedCards.includes(id)){
+    state.openedCards.push(id);
+    persist();refreshStats();
+  }
+}
+
+// ── Citação do dia ────────────────────────────────────────────
+const quotes=[
+  ["Tens poder sobre a tua mente, não sobre os acontecimentos. Percebe isto e encontras a força.","Marco Aurélio"],
+  ["Sofremos mais na imaginação do que na realidade.","Séneca"],
+  ["Não são as coisas que nos perturbam, mas a opinião que temos delas.","Epicteto"],
+  ["A melhor vingança é não seres como aquele que te feriu.","Marco Aurélio"],
+  ["Quem é senhor de si próprio não tem dono.","Séneca"]
+];
+(function(){
+  const q=quotes[new Date().getDate()%quotes.length];
+  const el=document.getElementById('daily-quote');
+  el.querySelector('p').textContent='"'+q[0]+'"';
+  el.querySelector('span').textContent=q[1];
+})();
+
+// ── Cenários ──────────────────────────────────────────────────
+const scens=[
+ {who:"Numa loja, o vendedor",
+  situ:"\"Este é o último em stock e o desconto acaba hoje à noite. Havia outro cliente interessado que disse que voltava daqui a uma hora.\"",
+  opts:["Compro já, não posso perder a oportunidade.","Digo que volto amanhã. Se for negócio bom hoje, é bom amanhã.","Peço para ele guardar e decido em 10 minutos ali mesmo."],
+  correct:1,
+  fb:"<b>Escassez + urgência</b> (Cialdini). A pressão de tempo existe para desligar o teu raciocínio. A regra: decisão que não aguenta 24 horas de espera raramente é boa decisão. Se o produto desaparecer, aparece outro. Sempre aparece."},
+ {who:"Alguém que conheceste há 2 semanas",
+  situ:"Elogia-te sem parar, diz que nunca conheceu ninguém como tu, fala em planos de vida juntos e quer estar contigo todos os dias. Sentes-te especial como nunca.",
+  opts:["É intensidade, é paixão verdadeira. Mergulho de cabeça.","Aproveito, mas mantenho o meu ritmo, os meus amigos e a minha rotina, e observo o comportamento ao longo de meses.","Corto já, só pode ser interesseira."],
+  correct:1,
+  fb:"<b>Love bombing + afinidade + reciprocidade.</b> Intensidade extrema no início cria dívida emocional e acelera compromisso antes de conheceres o carácter da pessoa. A resposta não é paranoia (opção 3), é tempo. Carácter revela-se em meses, não em semanas. Quem tem boas intenções não tem pressa."},
+ {who:"No trabalho, um colega",
+  situ:"Ofereceu-te ajuda num projecto sem pedires. Uma semana depois pede-te para o cobrires numa falha grave perante o chefe. \"Depois de tudo o que fiz por ti...\"",
+  opts:["Cubro-o, devo-lhe essa.","Agradeço a ajuda passada, mas recuso: uma coisa não compra a outra.","Cubro desta vez mas aviso que é a última."],
+  correct:1,
+  fb:"<b>Reciprocidade armada.</b> O favor inicial foi um investimento para te cobrar depois. Gratidão não é contrato. A frase-chave para a vida: \"agradeço o que fizeste, e isso não muda a minha resposta a isto\". Quem se ofende com esta frase confirmou a intenção."},
+ {who:"Numa discussão, a pessoa com quem sais",
+  situ:"Sempre que apontas algo que te incomodou, ela chora ou fica em silêncio dias, e no fim és tu que pedes desculpa, mesmo sem saber bem porquê.",
+  opts:["Evito conflitos para não a magoar, guardo tudo para mim.","Reconheço o padrão: emoção usada como escudo e silêncio como castigo. Falo com calma, mantenho o ponto, e se o padrão se repetir sempre, saio.","Respondo com o mesmo: também a ignoro uns dias."],
+  opts_note:"",
+  correct:1,
+  fb:"<b>Bloqueio + inversão de culpa</b> (Gottman chama-lhe stonewalling). O tratamento de silêncio como castigo é manipulação, não sensibilidade. A opção 3 é entrar no jogo. A força está em nomear o padrão com calma e ter a disponibilidade real de sair. Quem não tem medo de sair não é controlável."},
+ {who:"Um \"mentor\" nas redes sociais",
+  situ:"Homem de fato, carro de luxo, 500 mil seguidores: \"as mulheres só respeitam homens de valor, compra o meu curso e aprende a dominar o jogo\".",
+  opts:["500 mil seguidores não mentem, compro o curso.","Detecto 3 armas ao mesmo tempo: autoridade fabricada, prova social e a exploração da minha insegurança. Passo.","Não compro, mas sigo o conteúdo grátis todos os dias."],
+  correct:1,
+  fb:"<b>Autoridade + prova social + exploração de carência.</b> O modelo de negócio dele é a tua insegurança: primeiro convence-te de que és fraco, depois vende-te a cura. Nota que a opção 3 também perde: consumir esse conteúdo diariamente alimenta o ressentimento que te torna mais fraco e mais manipulável, não menos."},
+ {who:"Tu próprio, às 2 da manhã",
+  situ:"A relação vai mal há um ano. Pensas: \"já investi 3 anos nisto, não posso deitar tudo fora agora\".",
+  opts:["Verdade, tanto tempo investido tem de valer alguma coisa. Continuo.","Os 3 anos já não voltam, decida eu o que decidir. A única pergunta válida: com o que sei hoje, escolheria começar esta relação amanhã?","Continuo mais 6 meses como último teste."],
+  correct:1,
+  fb:"<b>Custo afundado + aversão à perda.</b> O maior manipulador da tua vida às vezes és tu. O tempo investido é irrecuperável e por isso é irrelevante para a decisão. A pergunta do \"escolheria começar hoje?\" corta o nevoeiro em qualquer área: relações, negócios, empregos."}
+];
+
+function renderScen(){
+  const box=document.getElementById('scen-box');
+  const dots=document.getElementById('scen-dots');
+  dots.innerHTML=scens.map((_,i)=>`<div class="dot ${i<state.scenIdx?'done':''}"></div>`).join('');
+  if(state.scenIdx>=scens.length){
+    box.innerHTML=`<div class="scen-situ"><div class="who">Treino completo</div>
+    <p>Detectaste as 6 jogadas principais: escassez, love bombing, reciprocidade armada, silêncio como castigo, autoridade fabricada e custo afundado.</p>
+    <p style="margin-top:10px;color:var(--muted);font-size:13.5px">Repete amanhã. O objectivo não é decorar: é o reconhecimento tornar-se reflexo.</p></div>
+    <button class="btn" onclick="resetScen()">Repetir treino</button>`;
+    return;
+  }
+  const s=scens[state.scenIdx];
+  state.answered=false;
+  box.innerHTML=`<div class="scen-situ"><div class="who">${s.who}</div><p>${s.situ}</p></div>
+  ${s.opts.map((o,i)=>`<button class="opt" onclick="answer(this,${i})">${o}</button>`).join('')}
+  <div class="feedback" id="fb">${s.fb}</div>
+  <div style="height:10px"></div>
+  <button class="btn" id="next-btn" style="display:none" onclick="nextScen()">Próximo cenário</button>`;
+}
+function answer(el,i){
+  if(state.answered)return;
+  state.answered=true;
+  const s=scens[state.scenIdx];
+  document.querySelectorAll('.opt').forEach((o,j)=>{
+    if(j===s.correct)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  document.getElementById('fb').classList.add('show');
+  document.getElementById('next-btn').style.display='block';
+}
+function nextScen(){
+  state.scenIdx++;
+  state.scen=Math.max(state.scen,state.scenIdx);
+  persist();refreshStats();
+  renderScen();
+}
+function resetScen(){state.scenIdx=0;persist();renderScen();}
+renderScen();
+refreshStats();
+
+// ── Diário ────────────────────────────────────────────────────
+function saveDiario(){
+  const d1=document.getElementById('d1').value.trim();
+  const d2=document.getElementById('d2').value.trim();
+  const d3=document.getElementById('d3').value.trim();
+  if(!d1&&!d2&&!d3)return;
+  state.entries.push({d:new Date().toISOString(),q1:d1,q2:d2,q3:d3});
+  persist();refreshStats();renderHistory();
+  document.getElementById('diario-saved').classList.add('show');
+  setTimeout(()=>document.getElementById('diario-saved').classList.remove('show'),4000);
+  document.getElementById('d1').value='';document.getElementById('d2').value='';document.getElementById('d3').value='';
+}
+function renderHistory(){
+  const box=document.getElementById('diario-hist');
+  if(!box)return;
+  if(!state.entries.length){box.innerHTML='';return;}
+  const items=state.entries.slice().reverse().slice(0,14).map(e=>{
+    const dt=new Date(e.d);
+    const ds=dt.toLocaleDateString('pt-PT',{day:'numeric',month:'short'});
+    const txt=[e.q1,e.q2,e.q3].filter(Boolean).map(t=>`<span>${t.replace(/</g,'&lt;')}</span>`).join('');
+    return `<div class="lesson"><b>${ds}</b>${txt}</div>`;
+  }).join('');
+  box.innerHTML=`<div class="hr"></div><h2>Registos anteriores</h2><div style="height:12px"></div>${items}`;
+}
+renderHistory();
+</script>
+</body>
+</html>
